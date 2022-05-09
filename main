@@ -1,0 +1,127 @@
+'''
+INTRODUCTION: Play sorry with two die, and one peg. Move your piece down the board first. But rolling 
+certain numbers will change the pace of the game. 
+
+INCLUDE IN YOUR ASSIGNMENT: Annotation is a major part of any program. At the top of each of your 
+C++ programs, you should have at least four lines of documentation:
+// Program name: tictactoe.cpp
+// Author: Twilight Sparkle
+// Date last updated: 5/26/2016
+// Purpose: Play the game of Tic-Tac-Toe
+
+ASSIGNMENT: Sorry Game
+1.To play “Sorry”, you’ll need to create up to Four players.
+Prompt the user for the number of players (2-4). DONE
+2. Create two die for the players to roll. DONE
+3. Create an Array to be used to track the player’s positions on the playing board. DONE
+4. The playing board has 50 spaces (with 50 being the winning space).
+5. The dice have special conditions: DONE
+2 = Move two spaces
+3 = Move three spaces
+4 = Move back one space.
+5 = Move five spaces.
+6 = Move six spaces.
+7 = Swap spots with the leading layer / or nothing if player is in lead.
+8 = Move Eight spaces.
+9 = Move nine spaces.
+10 = Move ten spaces.
+11 = Swap spots with the last player / or do nothing if player is last.
+12 = Start Over
+6.  A player must roll a double to start. DONE
+7.  If a player lands on the same space as another, the other player must return to the beginning. TODO
+Example: If P1 lands on a space where P3 is, P3 would go back to the start.
+8. A player must roll an EXACT number to enter the winning space. TODO
+9. Use a random Generator to “roll” the dice, the user must press enter to roll. TODO (LAST)
+10. Depict the players’ positions on the screen after each round. DONE
+11. Once a player finishes, create a winning message announcing the winner. TODO
+12. Then ask the user if they would like to play again. TODO
+13. You must use at least three functions. Some function examples could be: TODO
+Roll dice DONE, check for other player (when moving) TODO, display board TODO.
+14. Display the status/location of the players between sets of rolls. DONE
+15. Depict a Playing Board on the screen and display the Players’ position on the board. (Extra Credit) TODO
+(maybe try using a method to create the board and screen each time a player moves)
+16. If a player rolls a double, they’ll get another roll (Extra Credit). TODO
+17. If a player rolls two doubles in a row, they Start Over (Extra Credit). TODO
+'''
+
+import random
+
+# Function to roll two dice and return each die number as well as roll total
+def rollDice():
+    die1 = random.randint(1,6)
+    die2 = random.randint(1,6)
+    roll = die1 + die2
+    return [die1, die2, roll]
+
+# Function to check for doubles which returns boolean value
+def checkForDouble(roll):
+    if roll[0] == roll[1]:
+        return True
+    else:
+        return False
+
+numOfPlayers = int(input("How many players? (must be 2-4) "))
+
+# Creates array to keep track of each player's current space number
+currentSpace = []
+initialDouble = []
+for i in range(numOfPlayers):
+    currentSpace.append(1)
+    initialDouble.append(False)
+
+# Loop for game to continue until there is a winner
+winner = False
+while not winner:
+
+    # One round of turns for each player
+    for i in range(numOfPlayers):
+        print("Player " + str(i + 1) + " turn.")
+        currentRoll = rollDice()
+        
+        print(currentSpace)
+        print(currentRoll)
+
+        # Checks for initial double roll
+        if not initialDouble[i]:
+            if checkForDouble(currentRoll):
+                initialDouble[i] = True
+            else:
+                print("Sorry Player " + str(i + 1) + ", you did not roll a double!  Try again next time.")
+                continue
+
+        # Runs a regular turn if player has already rolled an initial double to start
+        if initialDouble[i]:
+
+            # Checks for special condition of roll
+            if currentRoll[2] == 4:
+                # Move back one space (unless at start)
+                if currentSpace[i] != 1:
+                    currentSpace[i] -= 1
+            elif currentRoll[2] == 7:
+                # Swap with first place
+                max = i
+                for j in range(numOfPlayers):
+                    if currentSpace[j] > currentSpace[max]:
+                        max = j
+                currentSpace[i], currentSpace[max] = currentSpace[max], currentSpace[i] 
+                print("Swap with first: " + str(currentSpace))
+            elif currentRoll[2] == 11:
+                # Swap with last place
+                min = i
+                for j in range(numOfPlayers):
+                    if currentSpace[j] < currentSpace[min]:
+                        min = j
+                currentSpace[i], currentSpace[min] = currentSpace[min], currentSpace[i] 
+                print("Swap with last: " + str(currentSpace))
+            elif currentRoll[2] == 12:
+                # Return to start
+                currentSpace[i] = 1
+            else:
+                currentSpace[i] += currentRoll[2]
+
+            # Checks for win condition (player reaching space #50)
+            if currentSpace[i] >= 50:
+                winner = True
+                break
+            else:
+                continue

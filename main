@@ -30,7 +30,7 @@ Prompt the user for the number of players (2-4).
 6.  A player must roll a double to start.
 7.  If a player lands on the same SpacescurrentSpaces as another, the other player must return to the beginning.
 Example: If P1 lands on a SpacescurrentSpaces where P3 is, P3 would go back to the start.
-8. A player must roll an EXACT number to enter the winning SpacescurrentSpaces. TODO
+8. A player must roll an EXACT number to enter the winning SpacescurrentSpaces.
 9. Use a random Generator to “roll” the dice, the user must press enter to roll. TODO (LAST)
 10. Depict the players’ positions on the screen after each round.
 11. Once a player finishes, create a winning message announcing the winner.
@@ -40,23 +40,24 @@ Roll dice, check for other player (when moving), display board TODO.
 14. Display the status/location of the players between sets of rolls.
 15. Depict a Playing Board on the screen and display the Players’ position on the board. (Extra Credit) TODO
 (maybe try using a method to create the board and screen each time a player moves)
-16. If a player rolls a double, they’ll get another roll (Extra Credit). TODO
-17. If a player rolls two doubles in a row, they Start Over (Extra Credit). TODO
+16. If a player rolls a double, they’ll get another roll (Extra Credit).
+17. If a player rolls two doubles in a row, they Start Over (Extra Credit).
 '''
 
 import random
 
-# Function to roll two dice and return each die number as well as roll total
+# Rolls two dice and returns each die number as well as roll total
 def rollDice(player):
+    print()
     print("Player " + str(player + 1) + " turn.")
     die1 = random.randint(1,6)
     die2 = random.randint(1,6)
     sum = die1 + die2
     roll = [die1, die2, sum]
-    print("You rolled " + str(roll))
+    print("You rolled " + str(die1) + " and " + str(die2) + " for a total of " + str(sum) + ".")
     return roll
 
-# Function to swap current player with first place
+# Swaps current player with first place
 def swapWithFirst(spaces, player):
     max = player
     for i in range(len(spaces)):
@@ -64,25 +65,27 @@ def swapWithFirst(spaces, player):
             max = i
     spaces[player], spaces[max] = spaces[max], spaces[player] 
     if max != player:
-        print("Swap with Player " + str(max + 1) + " in first place. " + str(spaces))
+        print("Swap with Player " + str(max + 1) + " in first place. ")
     else:
-        print("You're already in first place!  Congrats, you stay there. " + str(spaces))
+        print("You're already in first place!  Congrats, you stay there. ")
     return spaces
 
-# Function to swap current player with last place
-def swapWithLast(spaces, player):
+# Swaps current player with last place
+# NEED TO CONSIDER IF MULTIPLE PLAYERS ARE AT START
+def swapWithLast(spaces, player, initial):
     min = player
     for i in range(len(spaces)):
-        if spaces[i] > spaces[min]:
+        # Looks only at players who have already started
+        if spaces[i] < spaces[min] and initial[i]:
             min = i
     spaces[player], spaces[min] = spaces[min], spaces[player] 
     if min != player:
-        print("Swap with Player " + str(min + 1) + " in last place. " + str(spaces))
+        print("Swap with Player " + str(min + 1) + " in last place. ")
     else:
-        print("You're already in last place!  Too bad, you stay there. " + str(spaces))
+        print("You're already in last place!  Too bad, you stay there. ")
     return spaces
 
-#Function to check for SORRY! condition
+# Checks for SORRY! condition
 def checkForSorry(spaces, player):
     for i in range(len(spaces)):
         if i != player:
@@ -94,52 +97,87 @@ def checkForSorry(spaces, player):
             continue
     return spaces
 
-def executeRoll(total, spaces, player):
+# Checks for and applies special conditions of roll
+def executeRoll(total, spaces, player, initial):
+    noMove = spaces[player]
     if total == 4:
         # Move back one space (unless at start)
-        if spaces[i] > 1:
+        if spaces[player] > 1:
             print("Move back one space!")
-            spaces[i] -= 1
+            spaces[player] -= 1
             spaces = checkForSorry(spaces, player)
+        else:
+            print("You can't move back because you're at start!  You stay there.")
     elif total == 7:
-        # Swap with first place
         spaces = swapWithFirst(spaces, player)
     elif total == 11:
-        # Swap with last place
-        # NEED TO FIX TO LOOK ONLY AT PLAYERS ON BOARD
-        spaces = swapWithLast(spaces, player)
+        spaces = swapWithLast(spaces, player, initial)
     elif total == 12:
-        # Return to start
-        total = 1
+        # Return to start (unless at start)
+        if spaces[player] > 1:
+            print("Return to start!")
+            spaces[player] = 1
+        else:
+            print("You're already at start!  You stay there.")
     else:
         print("Move forward " + str(total) + " spaces!")
-        spaces[i] += total
+        spaces[player] += total
         spaces = checkForSorry(spaces, player)
+    # Checks for exact roll to win
+    if spaces[player] > 50:
+        spaces[player] = noMove
+        print("Sorry, you need an exact roll to win!  You don't move.")
     print("Current positions: " + str(spaces))
     return spaces
 
-# Function to check for doubles which returns boolean value
+# Checks for doubles and then returns boolean value
 def rolledDouble(roll):
     if roll[0] == roll[1]:
         return True
     else:
         return False
 
-# POSSIBLE FUNCTION FOR TWO DOUBLES IN A ROW
-# def doubleDoubles():
+# Keeps track of consecutive doubles and applies appropriate conditions
+def trackDoubles(roll, spaces, player, doubles, initial):
+    if rolledDouble(roll):
+        doubles[i] += 1
+        if doubles[i] == 1:
+            print("You rolled doubles!  Roll again.")
+            roll = rollDice(player)
+            if rolledDouble(roll):                                
+                print("Oh no!  Two doubles in a row.  Bad luck.  Return to start.")
+                spaces[i] = 1
+            else:
+                spaces = executeRoll(roll[2], spaces, player, initial)
+                doubles[i] = 0
+        # This is turn 2 specific
+        if doubles[i] == 2:
+            doubles[i] = 0
+            print("Oh no!  Two doubles in a row.  Bad luck.  Return to start.")
+            spaces[i] = 1
+    else:
+        doubles[i] = 0
+    return [spaces, doubles]
 
-# Loop for repeating games until player says no
+# Repeats games until player says no
 newGame = True
 while newGame:
 
-    numOfPlayers = int(input("How many players? (must be 2-4) "))
+    # Repeatedly asks for number of players until player enters valid number
+    while True:
+        numOfPlayers = input("How many players? (must be 2-4) ")
+        if numOfPlayers not in ["2", "3", "4"]:
+            print("You must choose a number between 2 and 4!")
+            continue
+        else:
+            break
 
-    # Creates array to keep track of each player's current SpacescurrentSpaces number
+    # Creates array to keep track of each player's current space number
     currentSpaces = []
     initialDouble = []
     consecutiveDoubles = []
-    for i in range(numOfPlayers):
-        # NEED TO CHANGE TO APPEND 0
+    for i in range(int(numOfPlayers)):
+        # Play starts on space 1 (alternatively could start on space 0)
         currentSpaces.append(1)
         initialDouble.append(False)
         consecutiveDoubles.append(0)
@@ -149,50 +187,51 @@ while newGame:
     while not winner:
 
         # One round of turns for each player
-        for i in range(numOfPlayers):
+        for i in range(len(currentSpaces)):
             firstRoll = False
             currentRoll = rollDice(i)
 
             # Checks for initial double roll
             if not initialDouble[i]:
+                # Player applies conditions of initial double roll to move (alternatively could roll again)
                 if rolledDouble(currentRoll):
                     initialDouble[i] = True
                     firstRoll = True
                     consecutiveDoubles[i] += 1
+                    print("Congrats on rolling your first double!  You get to move.")
                 else:
-                    print("Sorry Player " + str(i + 1) + ", you did not roll a double!  Try again next time.")
+                    print("Sorry, you did not roll a double!  Try again next time.")
                     print("Current positions: " + str(currentSpaces))
                     continue
 
             # Runs a regular turn if player has already rolled an initial double to start
             if initialDouble[i]:
-                currentSpaces = executeRoll(currentRoll[2], currentSpaces, i)
+                currentSpaces = executeRoll(currentRoll[2], currentSpaces, i, initialDouble)
 
-                # Checks for doubles (if it wasn't already checked for initial double)
+                # Checks for doubles (if it wasn't already checked with initial double)
                 if not firstRoll:
-                    if rolledDouble(currentRoll):
-                        consecutiveDoubles[i] += 1
-                        if consecutiveDoubles[i] == 1:
-                            print("You rolled doubles!  Roll again.")
-                            currentRoll = rollDice(i)
-                            currentSpaces = executeRoll(currentRoll[2], currentSpaces, i)
-                            if rolledDouble(currentRoll):
-                                consecutiveDoubles[i] = 0
-                                print("Oh no!  Two doubles in a row.  Bad luck.  Return to start.")
-                                currentSpaces[i] = 1
-                        if consecutiveDoubles[i] == 2:
-                            consecutiveDoubles[i] = 0
-                            print("Oh no!  Two doubles in a row.  Bad luck.  Return to start.")
-                            currentSpaces[i] = 1
-                    else:
-                        consecutiveDoubles[i] = 0
+                    newSpacesDoubles = trackDoubles(currentRoll, currentSpaces, i, consecutiveDoubles, initialDouble)
+                    currentSpaces, consecutiveDoubles = newSpacesDoubles[0], newSpacesDoubles[1]
+                print("Current doubles: " + str(consecutiveDoubles))
 
-                # Checks for win condition (player reaching SpacescurrentSpaces #50)
-                # MOVE = CURRENTROLL[2] THEN CHECK FOR OVER 50 AND SUBTRACT IF NEEDED
-                if currentSpaces[i] >= 50:
+                # Checks for win condition (player reaching space #50)
+                if currentSpaces[i] == 50:
                     winner = True
                     print("Player " + str(i + 1) + " wins!")
-                    playAgain = input("Would you like to play again? [y/n] ")
+
+                    # Repeatedly asks for user to play again until they choose valid input
+                    while True:
+                        playAgain = input("Would you like to play again? [y/n] ")
+                        if playAgain == "y":
+                            print("You've chosen to play a new game!  Good choice.")
+                            break
+                        elif playAgain == "n":
+                            print("You've chosen to stop playing.  No fun.")
+                            break
+                        else:
+                            print("You must choose y or n!")
+                            continue
+
                     if playAgain == "y":
                         break
                     else:

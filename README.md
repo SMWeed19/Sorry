@@ -1,25 +1,25 @@
 ASSIGNMENT: Sorry Game<br />
 1.To play “Sorry”, you’ll need to create up to Four players.<br />
 Prompt the user for the number of players (2-4).<br />
-2. Create two die for the players to roll.<br />
+2. Create two dice for the players to roll.<br />
 3. Create an Array to be used to track the player’s positions on the playing board.<br />
 4. The playing board has 50 spaces (with 50 being the winning space).<br />
 5. The dice have special conditions:<br />
 2 = Move two spaces<br />
 3 = Move three spaces<br />
-4 = Move back one SpacescurrentSpaces.<br />
+4 = Move back one space.<br />
 5 = Move five spaces.<br />
 6 = Move six spaces.<br />
-7 = Swap spots with the leading layer / or nothing if player is in lead.<br />
+7 = Swap spots with the leading player / or nothing if player is in lead.<br />
 8 = Move Eight spaces.<br />
 9 = Move nine spaces.<br />
 10 = Move ten spaces.<br />
 11 = Swap spots with the last player / or do nothing if player is last.<br />
 12 = Start Over<br />
 6.  A player must roll a double to start.<br />
-7.  If a player lands on the same SpacescurrentSpaces as another, the other player must return to the beginning.<br />
-Example: If P1 lands on a SpacescurrentSpaces where P3 is, P3 would go back to the start.<br />
-8. A player must roll an EXACT number to enter the winning SpacescurrentSpaces.<br />
+7.  If a player lands on the same space as another, the other player must return to the beginning.<br />
+Example: If P1 lands on a space where P3 is, P3 would go back to the start.<br />
+8. A player must roll an EXACT number to enter the winning space.<br />
 9. Use a random Generator to “roll” the dice, the user must press enter to roll.<br />
 10. Depict the players’ positions on the screen after each round.<br />
 11. Once a player finishes, create a winning message announcing the winner.<br />

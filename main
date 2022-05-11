@@ -1,55 +1,14 @@
-'''
-INTRODUCTION: Play sorry with two die, and one peg. Move your piece down the board first. But rolling 
-certain numbers will change the pace of the game. 
-
-INCLUDE IN YOUR ASSIGNMENT: Annotation is a major part of any program. At the top of each of your 
-C++ programs, you should have at least four lines of documentation:
-// Program name: tictactoe.cpp
-// Author: Twilight Sparkle
-// Date last updated: 5/26/2016
-// Purpose: Play the game of Tic-Tac-Toe
-
-ASSIGNMENT: Sorry Game
-1.To play “Sorry”, you’ll need to create up to Four players.
-Prompt the user for the number of players (2-4).
-2. Create two die for the players to roll.
-3. Create an Array to be used to track the player’s positions on the playing board.
-4. The playing board has 50 spaces (with 50 being the winning SpacescurrentSpaces).
-5. The dice have special conditions:
-2 = Move two spaces
-3 = Move three spaces
-4 = Move back one SpacescurrentSpaces.
-5 = Move five spaces.
-6 = Move six spaces.
-7 = Swap spots with the leading layer / or nothing if player is in lead.
-8 = Move Eight spaces.
-9 = Move nine spaces.
-10 = Move ten spaces.
-11 = Swap spots with the last player / or do nothing if player is last.
-12 = Start Over
-6.  A player must roll a double to start.
-7.  If a player lands on the same SpacescurrentSpaces as another, the other player must return to the beginning.
-Example: If P1 lands on a SpacescurrentSpaces where P3 is, P3 would go back to the start.
-8. A player must roll an EXACT number to enter the winning SpacescurrentSpaces.
-9. Use a random Generator to “roll” the dice, the user must press enter to roll. TODO (LAST)
-10. Depict the players’ positions on the screen after each round.
-11. Once a player finishes, create a winning message announcing the winner.
-12. Then ask the user if they would like to play again.
-13. You must use at least three functions. Some function examples could be:
-Roll dice, check for other player (when moving), display board.
-14. Display the status/location of the players between sets of rolls.
-15. Depict a Playing Board on the screen and display the Players’ position on the board. (Extra Credit)
-(maybe try using a method to create the board and screen each time a player moves)
-16. If a player rolls a double, they’ll get another roll (Extra Credit).
-17. If a player rolls two doubles in a row, they Start Over (Extra Credit).
-'''
-
 import random
 
 # Rolls two dice and returns each die number as well as roll total
 def rollDice(player):
     print()
     print("PLAYER " + str(player + 1) + " TURN")
+    # Will continue to ask player to press enter to roll
+#    while True:
+#        ready = input("Please PRESS ENTER to roll.")
+#        if ready == "":
+#            break
     die1 = random.randint(1,6)
     die2 = random.randint(1,6)
     sum = die1 + die2
@@ -71,13 +30,29 @@ def swapWithFirst(spaces, player):
     return spaces
 
 # Swaps current player with last place
-# NEED TO CONSIDER IF MULTIPLE PLAYERS ARE AT START TODO
 def swapWithLast(spaces, player, initial):
     min = player
+    start = []
     for i in range(len(spaces)):
         # Looks only at players who have already started
-        if spaces[i] < spaces[min] and initial[i]:
+        if spaces[i] <= spaces[min] and initial[i] and i != player:
+            if spaces[i] == 1:
+                start.append(i + 1)
             min = i
+    # Allows player to choose who to swap with if multiple at start.
+    if len(start) > 1:
+        print("There is more than one player at start!")
+        print("Choose one of the following players to swap with.")
+        for i in range(len(start)):
+            print("PLAYER " + str(start[i]))
+        # Repeatdedly asks for valid input
+        while True:
+            try:
+                min = int(input("Who do you choose? (Input only the number): ")) - 1
+            except ValueError:
+                continue
+            if min + 1 in start:
+                break
     spaces[player], spaces[min] = spaces[min], spaces[player] 
     if min != player:
         print("Swap with PLAYER " + str(min + 1) + " in last place. ")
@@ -247,6 +222,7 @@ while newGame:
                         playAgain = input("Would you like to play again? [y/n] ")
                         if playAgain == "y":
                             print("You've chosen to play a new game!  Good choice.")
+                            print()
                             break
                         elif playAgain == "n":
                             print("You've chosen to stop playing.  No fun.")

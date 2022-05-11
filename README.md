@@ -3,7 +3,7 @@ ASSIGNMENT: Sorry Game<br />
 Prompt the user for the number of players (2-4).<br />
 2. Create two die for the players to roll.<br />
 3. Create an Array to be used to track the player’s positions on the playing board.<br />
-4. The playing board has 50 spaces (with 50 being the winning SpacescurrentSpaces).<br />
+4. The playing board has 50 spaces (with 50 being the winning space).<br />
 5. The dice have special conditions:<br />
 2 = Move two spaces<br />
 3 = Move three spaces<br />
